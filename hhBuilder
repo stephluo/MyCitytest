@@ -1,0 +1,201 @@
+//You have been given an HTML page with a form and a placeholder for displaying a household.
+// Validate data entry (age is required and > 0, relationship is required)
+//Add people to a growing household list
+//Reset the entry form after each addition
+//Remove a previously added person from the list
+//Display the household list in the HTML as it is modified
+//Serialize the household as JSON upon form submission as a fake trip to the server
+//Follow industry accessibility guidelines for form validation
+
+var household = [];
+var ageEle = document.querySelector('#age');
+var relEle = document.querySelector('#rel');
+var smokerEle = document.querySelector('#smoker');
+var householdEle = document.querySelector('.household');
+var addEle = document.querySelector('.add');
+var builder = document.querySelector('body');
+var divs = document.querySelectorAll('label');
+
+builder.style.maxWidth = '600px';
+builder.style.marginLeft = 'auto';
+builder.style.marginRight = 'auto';
+addEle.type = 'button';
+var submitEle = document.querySelector('button[type=submit]');
+submitEle.style.display = 'none';
+var myage;
+var myRel;
+var removeButtons;
+
+/*var householdObj = [{
+"age": 28,
+"Title": "Parent",
+"Smoker": 0
+}, {
+"age": 12,
+"Title": "Child",
+"Smoker": 0
+}, {
+"age": 28,
+"Title": "Parent",
+"Smoker": 1
+}];*/
+function removefromJSON(theID) {
+    console.log(theID);
+    delete household[theID];
+    console.log(household);
+    relEle.selectedIndex = 0;
+    householdEle.innerHTML = '';
+    newHousehold = [];
+    householdLength = household.length;
+    testCount = 0;
+    for (i = 0; i < household.length; i++) {
+        if (household[i] !== undefined) {
+            console.log('making the newhousehold');
+            var jsonData = {};
+            jsonData.age = household[i].age;
+            jsonData.title = household[i].title;
+            jsonData.smoker = household[i].smoker;
+            jsonData.clickID = household[i].clickID;
+            displayHTML(jsonData, household[i].clickID);
+            newHousehold.push(jsonData);
+            testCount++;
+        }
+    }
+    Household = newHousehold;
+    if (testCount == 0) {
+        submitEle.style.display = 'none';
+    }
+    ///resetRemoves();
+}
+
+function resetRemoves() {
+    removeButtons = document.querySelectorAll('.Remove');
+
+    for (q = 0; q < removeButtons.length; q++) {
+        removeButtons[q].style.cssFloat = 'right';
+        removeButtons[q].style.color = '#333';
+        removeButtons[q].style.textDecoration = 'underline';
+        removeButtons[q].onmousedown = function (q) {
+            clickID = this.id.replace('ck_', '');
+            removefromJSON(clickID);
+        }
+    }
+}
+
+function displayPost() {
+    getBody = document.querySelector('body');
+    postAlert = document.createElement("div");
+    postAlert.style.backgroundColor = '#eaeaea';
+    postAlert.borderColor = '#333';
+    postAlert.padding = '15px';
+    postAlert.margin = '7px';
+    postAlert.id = 'postAlert';
+    postAlert.innerHTML = "<code>json=" + encodeURI(JSON.stringify(household)) + "<code>";
+    getBody.prepend(postAlert);
+    household = [];
+    submitEle.style.display = 'none';
+    setTimeout(() => {
+        mychild = document.querySelector('#postAlert');
+        mychild.remove(mychild);
+        householdEle.innerHTML = '';
+        relEle.selectedIndex = 0;
+    }, 8000);
+}
+
+
+function submitIt(url, callback) {
+    const xhr = new XMLHttpRequest();
+    var params = 'json=' + encodeURI(JSON.stringify(household));
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            callback(xhr.response);
+        }
+
+    }
+    if(url == '#'){
+        displayPost();
+    }else{
+        xhr.open('POST', url, true);
+        xhr.send('');
+    }
+
+}
+
+function displayHTML(jsonData, clickID) {
+    console.log('JSON' + jsonData);
+    var li = document.createElement("li");
+    li.innerHTML = jsonData.title + ' (' + jsonData.age + ' yr old ' + jsonData.smoker + ' )' + '<span class=Remove id="ck_' + clickID + '">Remove</span>'
+    householdEle.appendChild(li);
+    resetRemoves();
+    submitEle.style.display = 'block';
+}
+
+
+function myValidate(ele, eleVal) {
+    if (ele.id == 'age') {
+        if (Number.isInteger(eleVal) && eleVal > -1) {
+            console.log('age fine');
+            return true;
+        } else {
+            console.log('Age:' + eleVal);
+            ele.value = '';
+            toolTip('Enter numbers only', this);
+        }
+    }
+    if (ele.id == 'rel') {
+        if (ele.value == '') {
+            toolTip('Select Relationship', this);
+        } else {
+            console.log('Relationship selected');
+            return true;
+        }
+    }
+}
+
+function buildHouseHold(age, title, smoker) {
+    HLlength = household.length;
+    var jsonData = {};
+    jsonData.age = age;
+    jsonData.title = title;
+    jsonData.smoker = smoker;
+    jsonData.clickID = HLlength;
+    household.push(jsonData);
+    console.log('JSON' + jsonData);
+    displayHTML(jsonData, HLlength);
+}
+
+function toolTip(message, Ele) {
+    alert(message);
+}
+
+ageEle.onkeyup = function (e) {
+    myage = parseInt(this.value);
+    myValidate(this, myage, 0);
+}
+
+relEle.onchange = function (e) {
+    myRel = this.value;
+    myValidate(this, this.value, 0);
+}
+
+addEle.onclick = function (e) {
+    if (myValidate(ageEle, myage) == true) {
+        if (myValidate(relEle, myRel) == true) {
+            if (smokerEle.checked) {
+                smoker = 'smoker';
+            } else {
+                smoker = '';
+            }
+            buildHouseHold(myage, myRel, smoker)
+            ageEle.value = '';
+            myage.value = '';
+            smokerEle.checked = false;
+        }
+    }
+}
+
+submitEle.onclick = function (e) {
+    e.preventDefault();
+    const url = '#'; //A server URL page
+    submitIt(url, displayPost);
+}
