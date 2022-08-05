@@ -1,0 +1,13 @@
+1. When you say you want to digitize their application for a dog license, what are exact models and requirments beyond having some form fields to be included and uploaded to a database: 
+Is there an email confirmation to both the administrator and the citizen?
+Will the user be able to have an account where they can log in to check status, renew, make payments?
+What reporting is needed for admin users?
+What is the payment gateway?
+How many users do you expect the application to handle? 
+How many years of archive data shall the system maintain?  
+
+2. What are fields of data will you be needing to collect? Are their any digital images or documents that will also go along with that?
+3. Will the identification number of the dog tag be manually generated or would you prefer that I generate it on the fly, include that in the database, and then link up with a dog tag manufacturer api on your behalf?
+4. If we are going to be building this on your website, I will utilize the same or similiar stylings so that it does look cohesive? If you have another location that you would like for this application, let me know.
+5. Will you require me to tie into an existing database adding Dog Tag Applications to a specific database. In the case of using Wordpress, I would ask whether they wanted the data in the WP database or external one. 
+6. Do you want a mobile responsive site or both a destop site and mobile app? 
